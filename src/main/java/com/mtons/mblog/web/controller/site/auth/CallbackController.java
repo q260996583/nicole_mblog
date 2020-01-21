@@ -2,6 +2,7 @@ package com.mtons.mblog.web.controller.site.auth;
 
 import com.mtons.mblog.base.lang.Consts;
 import com.mtons.mblog.base.lang.MtonsException;
+import com.mtons.mblog.base.lang.Result;
 import com.mtons.mblog.base.oauth.*;
 import com.mtons.mblog.base.oauth.utils.OpenOauthBean;
 import com.mtons.mblog.base.oauth.utils.TokenUtil;
@@ -16,11 +17,6 @@ import com.mtons.mblog.web.controller.BaseController;
 import com.mtons.mblog.web.controller.site.Views;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authc.AuthenticationException;
-import org.apache.shiro.authc.LockedAccountException;
-import org.apache.shiro.authc.UnknownAccountException;
-import org.apache.shiro.authc.UsernamePasswordToken;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -36,7 +32,7 @@ import java.io.UnsupportedEncodingException;
 /**
  * 第三方登录回调
  *
- * @author langhsu on 2015/8/12.
+ * @author langhsu
  */
 @Slf4j
 @Controller
@@ -61,9 +57,9 @@ public class CallbackController extends BaseController {
     public void callWeibo(HttpServletRequest request, HttpServletResponse response) {
         response.setContentType("text/html;charset=utf-8");
         try {
-            APIConfig.getInstance().setOpenid_sina(siteOptions.getOptions().get(Consts.WEIBO_CLIENT_ID));
-            APIConfig.getInstance().setOpenkey_sina(siteOptions.getOptions().get(Consts.WEIBO_CLIENT_SERCRET));
-            APIConfig.getInstance().setRedirect_sina(siteOptions.getOptions().get(Consts.WEIBO_CALLBACK));
+            APIConfig.getInstance().setOpenid_sina(siteOptions.getValue(Consts.WEIBO_CLIENT_ID));
+            APIConfig.getInstance().setOpenkey_sina(siteOptions.getValue(Consts.WEIBO_CLIENT_SERCRET));
+            APIConfig.getInstance().setRedirect_sina(siteOptions.getValue(Consts.WEIBO_CALLBACK));
 
             String state = TokenUtil.randomState();
             request.getSession().setAttribute(SESSION_STATE, state);
@@ -117,7 +113,7 @@ public class CallbackController extends BaseController {
             return view(Views.OAUTH_REGISTER);
         }
         String username = userService.get(thirdToken.getUserId()).getUsername();
-        return login(username, thirdToken.getAccessToken(), request);
+        return login(username, thirdToken.getAccessToken());
     }
 
     /**
@@ -131,9 +127,9 @@ public class CallbackController extends BaseController {
     public void callQQ(HttpServletRequest request, HttpServletResponse response) {
         response.setContentType("text/html;charset=utf-8");
         try {
-            APIConfig.getInstance().setOpenid_qq(siteOptions.getOptions().get(Consts.QQ_APP_ID));
-            APIConfig.getInstance().setOpenkey_qq(siteOptions.getOptions().get(Consts.QQ_APP_KEY));
-            APIConfig.getInstance().setRedirect_qq(siteOptions.getOptions().get(Consts.QQ_CALLBACK));
+            APIConfig.getInstance().setOpenid_qq(siteOptions.getValue(Consts.QQ_APP_ID));
+            APIConfig.getInstance().setOpenkey_qq(siteOptions.getValue(Consts.QQ_APP_KEY));
+            APIConfig.getInstance().setRedirect_qq(siteOptions.getValue(Consts.QQ_CALLBACK));
 
             String state = TokenUtil.randomState();
             request.getSession().setAttribute(SESSION_STATE, state);
@@ -186,7 +182,7 @@ public class CallbackController extends BaseController {
             return view(Views.OAUTH_REGISTER);
         }
         String username = userService.get(thirdToken.getUserId()).getUsername();
-        return login(username, thirdToken.getAccessToken(), request);
+        return login(username, thirdToken.getAccessToken());
     }
 
     /**
@@ -198,9 +194,9 @@ public class CallbackController extends BaseController {
     @RequestMapping("/call_github")
     public void callGithub(HttpServletRequest request, HttpServletResponse response) {
         //设置github的相关
-        APIConfig.getInstance().setOpenid_github(siteOptions.getOptions().get(Consts.GITHUB_CLIENT_ID));
-        APIConfig.getInstance().setOpenkey_github(siteOptions.getOptions().get(Consts.GITHUB_SECRET_KEY));
-        APIConfig.getInstance().setRedirect_github(siteOptions.getOptions().get(Consts.GITHUB_CALLBACK));
+        APIConfig.getInstance().setOpenid_github(siteOptions.getValue(Consts.GITHUB_CLIENT_ID));
+        APIConfig.getInstance().setOpenkey_github(siteOptions.getValue(Consts.GITHUB_SECRET_KEY));
+        APIConfig.getInstance().setRedirect_github(siteOptions.getValue(Consts.GITHUB_CALLBACK));
 
         try {
             response.setContentType("text/html;charset=utf-8");
@@ -260,7 +256,7 @@ public class CallbackController extends BaseController {
             return view(Views.OAUTH_REGISTER);
         }
         String username = userService.get(thirdToken.getUserId()).getUsername();
-        return login(username, thirdToken.getAccessToken(), request);
+        return login(username, thirdToken.getAccessToken());
 
 
     }
@@ -276,9 +272,9 @@ public class CallbackController extends BaseController {
     public void callDouban(HttpServletRequest request, HttpServletResponse response) {
         response.setContentType("text/html;charset=utf-8");
         try {
-            APIConfig.getInstance().setOpenid_douban(siteOptions.getOptions().get(Consts.DOUBAN_API_KEY));
-            APIConfig.getInstance().setOpenkey_douban(siteOptions.getOptions().get(Consts.DOUBAN_SECRET_KEY));
-            APIConfig.getInstance().setRedirect_douban(siteOptions.getOptions().get(Consts.DOUBAN_CALLBACK));
+            APIConfig.getInstance().setOpenid_douban(siteOptions.getValue(Consts.DOUBAN_API_KEY));
+            APIConfig.getInstance().setOpenkey_douban(siteOptions.getValue(Consts.DOUBAN_SECRET_KEY));
+            APIConfig.getInstance().setRedirect_douban(siteOptions.getValue(Consts.DOUBAN_CALLBACK));
 
             String state = TokenUtil.randomState();
             request.getSession().setAttribute(SESSION_STATE, state);
@@ -333,7 +329,7 @@ public class CallbackController extends BaseController {
             return view(Views.OAUTH_REGISTER);
         }
         String username = userService.get(thirdToken.getUserId()).getUsername();
-        return login(username, thirdToken.getAccessToken(), request);
+        return login(username, thirdToken.getAccessToken());
     }
 
     /**
@@ -352,17 +348,16 @@ public class CallbackController extends BaseController {
         // 已存在：提取用户信息，登录
         if (thirdToken != null) {
             username = userService.get(thirdToken.getUserId()).getUsername();
-            // 不存在：注册新用户，并绑定此token，登录
-        } else {
+        } else { // 不存在：注册新用户，并绑定此token，登录
             UserVO user = userService.getByUsername(username);
             if (user == null) {
                 UserVO u = userService.register(wrapUser(openOauth));
 
-                // ===将远程图片下载到本地===
+                // 将远程图片下载到本地
                 String ava100 = Consts.avatarPath + getAvaPath(u.getId(), 100);
                 byte[] bytes = ImageUtils.download(openOauth.getAvatar());
-                storageFactory.get().writeToStore(bytes, ava100);
-                userService.updateAvatar(u.getId(), ava100);
+                String imagePath = storageFactory.get().writeToStore(bytes, ava100);
+                userService.updateAvatar(u.getId(), imagePath);
 
                 thirdToken = new OpenOauthVO();
                 BeanUtils.copyProperties(openOauth, thirdToken);
@@ -372,36 +367,27 @@ public class CallbackController extends BaseController {
                 username = user.getUsername();
             }
         }
-        return login(username, openOauth.getAccessToken(), request);
+        return login(username, openOauth.getAccessToken());
     }
 
     /**
      * 执行登录请求
      *
      * @param username
-     * @param request
+     * @param accessToken
      * @return
      */
-    private String login(String username, String accessToken, HttpServletRequest request) {
-        String ret = view(Views.LOGIN);
+    private String login(String username, String accessToken) {
+        String view = view(Views.LOGIN);
 
         if (StringUtils.isNotBlank(username)) {
-            UsernamePasswordToken token = createToken(username, accessToken);
-            try {
-                SecurityUtils.getSubject().login(token);
-                AccountProfile profile = getProfile();
-                ret = String.format(Views.REDIRECT_USER_HOME, profile.getId());
-            } catch (UnknownAccountException e) {
-                throw new MtonsException("用户不存在");
-            } catch (LockedAccountException e) {
-                throw new MtonsException("用户被禁用");
-            } catch (AuthenticationException e) {
-                log.error(e.getMessage());
-                throw new MtonsException("用户认证失败");
+            Result<AccountProfile> result = executeLogin(username, accessToken, false);
+            if (result.isOk()) {
+                view = String.format(Views.REDIRECT_USER_HOME, result.getData().getId());
             }
-            return ret;
+            return view;
         }
-        throw new MtonsException("登录失败！");
+        throw new MtonsException("登录失败");
     }
 
     private UserVO wrapUser(OpenOauthVO openOauth) {

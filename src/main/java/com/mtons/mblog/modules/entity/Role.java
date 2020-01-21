@@ -1,8 +1,5 @@
 package com.mtons.mblog.modules.entity;
 
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
@@ -13,7 +10,6 @@ import java.util.List;
  */
 @Entity
 @Table(name = "shiro_role")
-@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Role implements Serializable {
     private static final long serialVersionUID = -1153854616385727165L;
 
@@ -28,9 +24,10 @@ public class Role implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false, length = 32)
     private String name;
 
+    @Column(length = 140)
     private String description;
 
     private int status;

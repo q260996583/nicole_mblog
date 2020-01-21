@@ -10,11 +10,14 @@
 package com.mtons.mblog.web.controller.site;
 
 import com.mtons.mblog.base.lang.Consts;
+import com.mtons.mblog.base.utils.MarkdownUtils;
 import com.mtons.mblog.modules.data.PostVO;
 import com.mtons.mblog.modules.entity.Channel;
+import com.mtons.mblog.modules.entity.PostAttribute;
 import com.mtons.mblog.modules.service.ChannelService;
 import com.mtons.mblog.modules.service.PostService;
 import com.mtons.mblog.web.controller.BaseController;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -49,17 +52,23 @@ public class ChannelController extends BaseController {
 		model.put("channel", channel);
 		model.put("order", order);
 		model.put("pageNo", pageNo);
-		return view(Views.ROUTE_POST_INDEX);
+		return view(Views.POST_INDEX);
 	}
 
-	@RequestMapping("/view/{id}")
+	@RequestMapping("/post/{id:\\d*}")
 	public String view(@PathVariable Long id, ModelMap model) {
 		PostVO view = postService.get(id);
 
 		Assert.notNull(view, "该文章已被删除");
 
+		if ("markdown".endsWith(view.getEditor())) {
+			PostVO post = new PostVO();
+			BeanUtils.copyProperties(view, post);
+			post.setContent(MarkdownUtils.renderMarkdown(view.getContent()));
+			view = post;
+		}
 		postService.identityViews(id);
 		model.put("view", view);
-		return view(Views.ROUTE_POST_VIEW);
+		return view(Views.POST_VIEW);
 	}
 }

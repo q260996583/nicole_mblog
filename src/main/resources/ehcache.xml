@@ -5,22 +5,22 @@
 	
 	<defaultCache maxElementsInMemory="100" eternal="false" timeToIdleSeconds="180" timeToLiveSeconds="360" overflowToDisk="false" />
 	 
-	<cache name="postsCaches"
+	<cache name="postCaches"
 		eternal="false"
 		maxElementsOnDisk="999"
 		maxElementsInMemory="50"
 		overflowToDisk="true"
-		timeToIdleSeconds="180"
-		timeToLiveSeconds="360"
+		timeToIdleSeconds="60"
+		timeToLiveSeconds="120"
 		memoryStoreEvictionPolicy="LRU"/>
 	
-	<cache name="usersCaches"
+	<cache name="userCaches"
 		   eternal="false"
 		   maxElementsOnDisk="999"
 		   maxElementsInMemory="50"
 		   overflowToDisk="true"
-		   timeToIdleSeconds="180"
-		   timeToLiveSeconds="360"
+		   timeToIdleSeconds="60"
+		   timeToLiveSeconds="120"
 		   memoryStoreEvictionPolicy="LRU"/>
 
 </ehcache>

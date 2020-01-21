@@ -10,8 +10,13 @@
 package com.mtons.mblog.modules.entity;
 
 import org.apache.lucene.analysis.cn.smart.SmartChineseAnalyzer;
+import org.hibernate.annotations.Filter;
+import org.hibernate.annotations.FilterDef;
+import org.hibernate.annotations.FilterDefs;
+import org.hibernate.annotations.Filters;
 import org.hibernate.search.annotations.*;
 
+import javax.persistence.Index;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
@@ -19,10 +24,15 @@ import java.util.Date;
 /**
  * 内容表
  * @author langhsu
- * 
+ *
  */
 @Entity
-@Table(name = "mto_post")
+@Table(name = "mto_post", indexes = {
+		@Index(name = "IK_CHANNEL_ID", columnList = "channel_id")
+})
+@FilterDefs({
+		@FilterDef(name = "POST_STATUS_FILTER", defaultCondition = "status = 0" )})
+@Filters({ @Filter(name = "POST_STATUS_FILTER") })
 @Indexed(index = "post")
 @Analyzer(impl = SmartChineseAnalyzer.class)
 public class Post implements Serializable {
@@ -53,23 +63,29 @@ public class Post implements Serializable {
 	 * 摘要
 	 */
 	@Field
+	@Column(length = 140)
 	private String summary;
 
 	/**
 	 * 预览图
 	 */
+	@Column(length = 128)
 	private String thumbnail;
 
 	/**
 	 * 标签, 多个逗号隔开
 	 */
 	@Field
+	@Column(length = 64)
 	private String tags;
 
+	/**
+	 * 作者Id
+	 */
 	@Field
 	@NumericField
 	@Column(name = "author_id")
-	private long authorId; // 作者
+	private long authorId;
 
 	@Temporal(value = TemporalType.TIMESTAMP)
 	private Date created;
@@ -100,7 +116,7 @@ public class Post implements Serializable {
 	private int featured;
 
 	/**
-	 * 置顶状态
+	 * 排序值
 	 */
 	private int weight;
 

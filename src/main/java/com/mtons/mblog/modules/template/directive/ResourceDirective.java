@@ -5,7 +5,6 @@ package com.mtons.mblog.modules.template.directive;
 
 import com.mtons.mblog.modules.template.DirectiveHandler;
 import com.mtons.mblog.modules.template.TemplateDirective;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 
 /**
@@ -22,7 +21,7 @@ public class ResourceDirective extends TemplateDirective {
     @Override
     public void execute(DirectiveHandler handler) throws Exception {
         String src = handler.getString("src", "#");
-        if (src.startsWith("/storage")) {
+        if (src.startsWith("/storage") || src.startsWith("/theme")) {
             String base = handler.getContextPath();
             handler.renderString(base + src);
         } else {

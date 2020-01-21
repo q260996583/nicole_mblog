@@ -1,4 +1,4 @@
-<#include "/default/utils/ui.ftl"/>
+<#include "/default/inc/layout.ftl"/>
 
 <#assign title = view.title + ' - ' + options['site_name'] />
 <#assign keywords = view.keywords?default(options['site_keywords']) />
@@ -30,13 +30,13 @@
             <div class="panel-footer operate">
                 <#list view.tagsArray as tag>
                     <span>
-                            <a class="label label-default" href="${base}/tag/${tag}/">#${tag}</a>
-                        </span>
+                        <a class="label label-default" href="${base}/tag/${tag}/">#${tag}</a>
+                    </span>
                 </#list>
             </div>
-            <div class="panel-footer operate">
+            <div class="panel-footer">
                 <div class="hidden-xs">
-                    <div class="social-share" data-sites="weibo, wechat, facebook, twitter, google, qzone, qq"></div>
+                    <div class="social-share" data-sites="qq, weibo, wechat, qzone, facebook, twitter, google"></div>
                 </div>
                 <div class="clearfix"></div>
             </div>
@@ -45,12 +45,12 @@
         <!-- Comments -->
         <@controls name="comment">
         <div id="chat" class="chats shadow-box">
-            <div class="chat_other">
+            <div class="chat_header">
                 <h4>全部评论: <i id="chat_count">0</i> 条</h4>
             </div>
             <ul id="chat_container" class="its"></ul>
             <div id="pager" class="text-center"></div>
-            <div class="cbox-wrap">
+            <div class="chat_post">
                 <div class="cbox-title">我有话说: <span id="chat_reply" style="display:none;">@<i
                         id="chat_to"></i></span>
                 </div>
@@ -80,9 +80,7 @@
         <ul class="list-group about-user">
             <li class="list-group-item user-card" >
                 <div class="user-avatar">
-                    <a href="${base}/users/${view.author.id}">
-                        <@showAva view.author.avatar "img-circle"/>
-                    </a>
+                    <@utils.showAva view.author "img-circle"/>
                 </div>
                 <div class="user-name">
                     <span>${view.author.name}</span>
@@ -100,7 +98,7 @@
             <li class="list-group-item">
                 <div class="text-center">
                     <a class="btn btn-default btn-sm" href="javascript:void(0);" data-id="${view.id}" rel="favor">
-                        <i class="icon icon-like"></i> 收藏 <strong id="favors">${view.favors}</strong>
+                        <i class="icon icon-star"></i> 收藏 <strong id="favors">${view.favors}</strong>
                     </a>
                 </div>
             </li>

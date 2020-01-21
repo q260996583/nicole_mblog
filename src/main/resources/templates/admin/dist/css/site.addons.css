@@ -1,3 +1,12 @@
+
+.side-left {
+}
+
+.side-right {
+    padding: 0 0 0 15px;
+    margin-left: -15px;
+}
+
 .search-row {
     padding-bottom: 10px;
 }
@@ -18,13 +27,13 @@
     top: 0;
 }
 
-/* 上传头像按钮 */
-.thumbnail-box .upload-btn {
+/* 上传按钮 */
+.upload-btn {
     text-align: center;
-    margin-bottom: 9px;
+    margin-bottom: 0;
 }
 
-.thumbnail-box .upload-btn label {
+.upload-btn label {
     background-color: #62c162;
     color: white;
     padding: 6px 0px;
@@ -39,15 +48,15 @@
     margin: 10px auto 0px auto;
 }
 
-.thumbnail-box .upload-btn label:hover {
+.upload-btn label:hover {
     background-color: #5cb85c;
 }
 
-.thumbnail-box .upload-btn span {
+.upload-btn span {
     cursor: pointer;
 }
 
-.thumbnail-box .upload-btn input {
+.upload-btn input {
     position: absolute;
     top: 0;
     right: 0;
@@ -59,7 +68,28 @@
     cursor: pointer;
 }
 
-
+.mce-fullscreen {
+    z-index: 9999!important;
+}
 .error {
     color: #b94a48;
+}
+
+/* Tablet (Portrait)
+================================================== */
+@media only screen and (min-width: 768px) and (max-width: 992px) {
+    .side-right {
+        padding: 0 15px 0 15px;
+        margin-left: 0;
+    }
+
+}
+
+/* Mobile (Portrait & Landscape)
+================================================== */
+@media only screen and (max-width: 767px) {
+    .side-right {
+        padding: 0 15px 0 15px;
+        margin-left: 0;
+    }
 }

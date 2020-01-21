@@ -1,4 +1,4 @@
-<#include "/classic/utils/ui.ftl"/>
+<#include "/classic/inc/layout.ftl"/>
 
 <@layout "注册">
 
@@ -24,7 +24,7 @@
                         <label class="control-label" for="username">用户名</label>
                         <input class="form-control" id="username" name="username" type="text" value="${open.username}" required>
                     </div>
-                    <button type="submit" class="btn btn-success btn-block">
+                    <button type="submit" class="btn btn-primary btn-block">
                         提  交
                     </button>
                 </form>

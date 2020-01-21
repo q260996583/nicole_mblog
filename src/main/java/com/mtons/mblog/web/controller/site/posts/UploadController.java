@@ -52,8 +52,8 @@ public class UploadController extends BaseController {
     public UploadResult upload(@RequestParam(value = "file", required = false) MultipartFile file,
                                HttpServletRequest request) throws IOException {
         UploadResult result = new UploadResult();
-        int crop = ServletRequestUtils.getIntParameter(request, "crop", 0);
-        int size = ServletRequestUtils.getIntParameter(request, "size", 800);
+        String crop = request.getParameter("crop");
+        int size = ServletRequestUtils.getIntParameter(request, "size", siteOptions.getIntegerValue(Consts.STORAGE_MAX_WIDTH));
 
         // 检查空
         if (null == file || file.isEmpty()) {
@@ -68,7 +68,7 @@ public class UploadController extends BaseController {
         }
 
         // 检查大小
-        String limitSize = siteOptions.getOptions().get("storage_limit_size");
+        String limitSize = siteOptions.getValue(Consts.STORAGE_LIMIT_SIZE);
         if (StringUtils.isBlank(limitSize)) {
             limitSize = "2";
         }
@@ -79,16 +79,16 @@ public class UploadController extends BaseController {
         // 保存图片
         try {
             String path;
-            if (crop == 1) {
-                int width = ServletRequestUtils.getIntParameter(request, "width", 360);
-                int height = ServletRequestUtils.getIntParameter(request, "height", 240);
+            if (StringUtils.isNotBlank(crop)) {
+                Integer[] imageSize = siteOptions.getIntegerArrayValue(crop, Consts.SEPARATOR_X);
+                int width = ServletRequestUtils.getIntParameter(request, "width", imageSize[0]);
+                int height = ServletRequestUtils.getIntParameter(request, "height", imageSize[1]);
                 path = storageFactory.get().storeScale(file, Consts.thumbnailPath, width, height);
             } else {
                 path = storageFactory.get().storeScale(file, Consts.thumbnailPath, size);
             }
             result.ok(errorInfo.get("SUCCESS"));
             result.setName(fileName);
-            result.setType(getSuffix(fileName));
             result.setPath(path);
             result.setSize(file.getSize());
 
@@ -123,11 +123,6 @@ public class UploadController extends BaseController {
          * 文件大小
          */
         private long size;
-
-        /**
-         * 文件类型
-         */
-        private String type;
 
         /**
          * 文件存放路径
@@ -176,14 +171,6 @@ public class UploadController extends BaseController {
 
         public void setSize(long size) {
             this.size = size;
-        }
-
-        public String getType() {
-            return type;
-        }
-
-        public void setType(String type) {
-            this.type = type;
         }
 
         public String getPath() {

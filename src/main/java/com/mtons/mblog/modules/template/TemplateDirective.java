@@ -1,16 +1,20 @@
 package com.mtons.mblog.modules.template;
 
+import com.mtons.mblog.base.lang.Consts;
 import freemarker.core.Environment;
 import freemarker.template.TemplateDirectiveBody;
 import freemarker.template.TemplateDirectiveModel;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateModel;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 import java.io.IOException;
 import java.util.Map;
 
 /**
- * Created by langhsu on 2017/11/14.
+ * @author langhsu
  */
 public abstract class TemplateDirective implements TemplateDirectiveModel {
     protected static String RESULT = "result";
@@ -28,7 +32,29 @@ public abstract class TemplateDirective implements TemplateDirectiveModel {
         }
     }
 
-    abstract public String getName();
-    abstract public void execute(DirectiveHandler handler) throws Exception;
+    public abstract String getName();
 
+    public abstract void execute(DirectiveHandler handler) throws Exception;
+
+    public PageRequest wrapPageable(DirectiveHandler handler) throws Exception {
+        return wrapPageable(handler, Sort.by(Sort.Direction.DESC, "id"));
+    }
+
+    /**
+     * 包装分页对象
+     *
+     * @param handler DirectiveHandler
+     * @param sort    排序对象
+     * @return PageRequest
+     * @throws Exception
+     */
+    public PageRequest wrapPageable(DirectiveHandler handler, Sort sort) throws Exception {
+        int pageNo = handler.getInteger("pageNo", 1);
+        int size = handler.getInteger("size", Consts.PAGE_DEFAULT_SIZE);
+        if (null == sort) {
+            return PageRequest.of(pageNo - 1, size);
+        } else {
+            return PageRequest.of(pageNo - 1, size, sort);
+        }
+    }
 }

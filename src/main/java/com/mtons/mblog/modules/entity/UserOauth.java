@@ -9,8 +9,6 @@
 */
 package com.mtons.mblog.modules.entity;
 
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-
 import javax.persistence.*;
 
 /**
@@ -20,31 +18,45 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "mto_user_oauth")
-@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class UserOauth {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    /**
+     * 系统中的用户ID
+     */
     @Column(name = "user_id")
-    private long userId; // 系统中的用户ID
+    private long userId;
 
+    /**
+     * 认证类型：QQ、新浪
+     */
     @Column(name = "oauth_type")
-    private int oauthType; // 认证类型：QQ、新浪
+    private int oauthType;
 
-    @Column(name = "oauth_user_id")
-    private String oauthUserId; // 对应第三方用户ID
+    /**
+     * 对应第三方用户ID
+     */
+    @Column(name = "oauth_user_id", length = 128)
+    private String oauthUserId;
 
-    @Column(name = "oauth_code")
-    private String oauthCode;  // 第三方返回的code
+    /**
+     * 第三方返回的code
+     */
+    @Column(name = "oauth_code", length = 128)
+    private String oauthCode;
 
-    @Column(name = "access_token")
-    private String accessToken;  // 访问令牌
+    /**
+     * 访问令牌
+     */
+    @Column(name = "access_token", length = 128)
+    private String accessToken;
 
-    @Column(name = "expire_in")
+    @Column(name = "expire_in", length = 128)
     private String expireIn;
 
-    @Column(name = "refresh_token")
+    @Column(name = "refresh_token", length = 128)
     private String refreshToken;
 
     public long getId() {

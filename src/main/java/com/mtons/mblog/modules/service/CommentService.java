@@ -30,11 +30,15 @@ public interface CommentService {
 	/**
 	 * 查询评论列表
 	 * @param pageable
-	 * @param toId
+	 * @param postId
 	 */
-	Page<CommentVO> pagingByPostId(Pageable pageable, long toId);
+	Page<CommentVO> pagingByPostId(Pageable pageable, long postId);
+
+	List<CommentVO> findLatestComments(int maxResults);
 
 	Map<Long, CommentVO> findByIds(Set<Long> ids);
+
+	Comment findById(long id);
 	
 	/**
 	 * 发表评论
@@ -45,16 +49,11 @@ public interface CommentService {
 	
 	void delete(List<Long> ids);
 
-	/**
-	 * 带作者验证的删除
-	 * @param id
-	 * @param authorId
-	 */
 	void delete(long id, long authorId);
 
-	List<Comment> findAllByAuthorIdAndToId(long authorId, long toId);
-
-	List<CommentVO> latests(int maxResults);
+	void deleteByPostId(long postId);
 
 	long count();
+
+	long countByAuthorIdAndPostId(long authorId, long postId);
 }

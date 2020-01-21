@@ -1,4 +1,4 @@
-<#include "/default/utils/ui.ftl"/>
+<#include "/default/inc/layout.ftl"/>
 
 <@layout "通知">
 <div class="row users-show streams">
@@ -8,7 +8,7 @@
     <div class="col-xs-12 col-md-9 side-right">
         <div class="panel panel-default">
             <div class="panel-heading">通知列表</div>
-            <@author_messages userId=user.id pageNo=pageNo>
+            <@user_messages userId=user.id pageNo=pageNo>
                 <div class="panel-body remove-padding-horizontal">
                     <ul class="list-group topic-list notify">
                         <#list results.content as row>
@@ -19,10 +19,7 @@
                                     </div>
                                 </a>
                                 <div class="avatar pull-left">
-                                    <a href="${base}/users/${row.from.id}">
-                                        <img class="media-object img-thumbnail avatar avatar-middle"
-                                             src="<@resource src=row.from.avatar />">
-                                    </a>
+                                    <@utils.showAva row.from "media-object img-thumbnail avatar avatar-middle"/>
                                 </div>
                                 <div class="infos">
                                     <div class="media-heading">
@@ -30,11 +27,11 @@
                                         <a href="${base}/users/${row.from.id}">${row.from.name}</a>
                                         <span>
                                             <#if (row.event == 1)>
-                                                收藏了你的文章 - <a href="${base}/view/${row.postId}">${row.post.title}</a>
+                                                收藏了你的文章 - <a href="${base}/post/${row.postId}">${row.post.title}</a>
                                             <#elseif (row.event == 3)>
-                                                评论了你的文章 - <a href="${base}/view/${row.postId}">点击查看详情</a>
+                                                评论了你的文章 - <a href="${base}/post/${row.postId}">点击查看详情</a>
                                             <#elseif (row.event == 4)>
-                                                回复了你的评论 - <a href="${base}/view/${row.postId}">点击查看详情</a>
+                                                回复了你的评论 - <a href="${base}/post/${row.postId}">点击查看详情</a>
                                             </#if>
                                         </span>
                                     </div>
@@ -52,9 +49,9 @@
                     </ul>
                 </div>
                 <div class="panel-footer">
-                    <@pager request.requestURI!'', results, 5/>
+                    <@utils.pager request.requestURI!'', results, 5/>
                 </div>
-            </@author_messages>
+            </@user_messages>
         </div>
     </div>
 </div>

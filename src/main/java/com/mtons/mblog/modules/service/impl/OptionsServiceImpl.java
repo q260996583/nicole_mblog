@@ -12,6 +12,7 @@ package com.mtons.mblog.modules.service.impl;
 import com.mtons.mblog.modules.entity.Options;
 import com.mtons.mblog.modules.repository.OptionsRepository;
 import com.mtons.mblog.modules.service.OptionsService;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,13 +23,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
  * @author langhsu
- *
  */
 @Service
 public class OptionsServiceImpl implements OptionsService {
@@ -53,42 +52,23 @@ public class OptionsServiceImpl implements OptionsService {
 
 	@Override
 	@Transactional
-	public void update(List<Options> options) {
+	public void update(Map<String, String> options) {
 		if (options == null) {
 			return;
 		}
-		
-		for (Options opt :  options) {
-			Options entity = optionsRepository.findByKey(opt.getKey());
 
-			// 修改
+		options.forEach((key, value) -> {
+			Options entity = optionsRepository.findByKey(key);
+			String val = StringUtils.trim(value);
 			if (entity != null) {
-				entity.setValue(opt.getValue());
-			}
-			// 添加
-			else {
+				entity.setValue(val);
+			} else {
 				entity = new Options();
-				BeanUtils.copyProperties(opt, entity);
+				entity.setKey(key);
+				entity.setValue(val);
 			}
 			optionsRepository.save(entity);
-		}
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public Map<String, Options> findAll2Map() {
-		List<Options> list = findAll();
-		Map<String, Options> ret = new LinkedHashMap<>();
-		list.forEach(opt -> ret.put(opt.getKey(), opt));
-		return ret;
-	}
-
-	public String findConfigValueByName(String key) {
-		Options entity = optionsRepository.findByKey(key);
-		if (entity != null) {
-			return entity.getValue();
-		}
-		return null;
+		});
 	}
 
 	@Override

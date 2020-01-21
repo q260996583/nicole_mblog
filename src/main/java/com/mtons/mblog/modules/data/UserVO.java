@@ -27,6 +27,8 @@ public class UserVO implements Serializable {
 	private String password;
 	private String avatar;
 	private String name;
+	
+	@JSONField(serialize = false)
 	private String email;
 
 	private int posts; // 文章数
@@ -39,7 +41,7 @@ public class UserVO implements Serializable {
 	private int status;
 
 	@JSONField(serialize = false)
-	private List<Role> roles = new ArrayList<Role>();
+	private List<Role> roles = new ArrayList<>();
 
 	public long getId() {
 		return id;

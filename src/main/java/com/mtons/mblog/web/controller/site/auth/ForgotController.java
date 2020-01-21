@@ -1,11 +1,10 @@
 package com.mtons.mblog.web.controller.site.auth;
 
 import com.mtons.mblog.base.lang.Consts;
-import com.mtons.mblog.modules.data.UserVO;
 import com.mtons.mblog.base.lang.Result;
-import com.mtons.mblog.base.utils.MailHelper;
-import com.mtons.mblog.modules.service.UserService;
+import com.mtons.mblog.modules.data.UserVO;
 import com.mtons.mblog.modules.service.SecurityCodeService;
+import com.mtons.mblog.modules.service.UserService;
 import com.mtons.mblog.web.controller.BaseController;
 import com.mtons.mblog.web.controller.site.Views;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,8 +23,6 @@ public class ForgotController extends BaseController {
     private UserService userService;
     @Autowired
     private SecurityCodeService securityCodeService;
-    @Autowired
-    private MailHelper mailHelper;
 
     @GetMapping("/forgot")
     public String view() {
@@ -34,25 +31,20 @@ public class ForgotController extends BaseController {
 
     @PostMapping("/forgot")
     public String reset(String email, String code, String password, ModelMap model) {
-        Result data;
-
+        String view = view(Views.FORGOT);
         try {
             Assert.hasLength(email, "请输入邮箱地址");
             Assert.hasLength(code, "请输入验证码");
             UserVO user = userService.getByEmail(email);
             Assert.notNull(user, "账户不存在");
 
-            securityCodeService.verify(user.getId(), Consts.CODE_FORGOT, code);
+            securityCodeService.verify(String.valueOf(user.getId()), Consts.CODE_FORGOT, code);
             userService.updatePassword(user.getId(), password);
-
-            data = Result.successMessage("恭喜您! 密码重置成功");
-            data.addLink("login", "前往登录");
-
+            model.put("data", Result.successMessage("恭喜您, 密码重置成功"));
+            view = view(Views.LOGIN);
         } catch (Exception e) {
-            data = Result.failure(e.getMessage());
+            model.put("data", Result.failure(e.getMessage()));
         }
-
-        model.put("data", data);
-        return view(Views.REGISTER_RESULT);
+        return view;
     }
 }

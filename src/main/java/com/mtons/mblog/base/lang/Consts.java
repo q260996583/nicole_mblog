@@ -22,16 +22,18 @@ public interface Consts {
 	/**
 	 * 默认头像
 	 */
-	String AVATAR = "/dist/images/ava/default.png";
+	String AVATAR = "https://en.gravatar.com/userimage/154673030/b9a54b5b990a61cc074668b2e2a0b8c0.png";
 	
 	/**
 	 * 分隔符
 	 */
 	String SEPARATOR = ",";
 
+	String SEPARATOR_X = "x";
+
 	String ROLE_ADMIN = "admin";
 
-	int PAGE_DEFAULT_SIZE = 16;
+	int PAGE_DEFAULT_SIZE = 10;
 
 	int IDENTITY_STEP = 1; // 自增步进
 
@@ -47,9 +49,6 @@ public interface Consts {
 	// 禁用状态
 	int STATUS_CLOSED = 1;
 
-	// 删除状态
-	int STATUS_REMOVED = 2;
-
 	/* 状态-初始 */
 	int STATUS_NORMAL = 0;
 
@@ -58,6 +57,8 @@ public interface Consts {
 
 	/* 状态-锁定 */
 	int STATUS_LOCKED = 1;
+
+	int STATUS_HIDDEN = 1;
 
 	/**
 	 * 排序
@@ -71,6 +72,7 @@ public interface Consts {
 
 	int CODE_BIND = 1;   // bind email
 	int CODE_FORGOT = 2; // forgot password
+	int CODE_REGISTER = 3;
 
 	int CODE_STATUS_INIT = 0;      // 验证码-初始
 	int CODE_STATUS_CERTIFIED = 1; // 验证码-已使用
@@ -94,6 +96,9 @@ public interface Consts {
 
 	int MESSAGE_EVENT_COMMENT_REPLY = 4; // 有人回复了你
 
+	String CACHE_USER = "userCaches";
+	String CACHE_POST = "postCaches";
+
 	/**
 	 * 第三方回调配置
 	 */
@@ -114,4 +119,11 @@ public interface Consts {
 	String GITHUB_SECRET_KEY = "github_secret_key";//github应用SECRET_KEY
 
 	String EMAIL_TEMPLATE_CODE = "email_code.ftl";
+
+	String EDITOR_MARKDOWN = "markdown";
+
+	String STORAGE_LIMIT_SIZE = "storage_limit_size";
+	String STORAGE_MAX_WIDTH = "storage_max_width";
+
+	String THUMBNAIL_POST_SIZE = "thumbnail_post_size";
 }

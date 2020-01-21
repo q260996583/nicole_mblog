@@ -1,10 +1,11 @@
 package com.mtons.mblog.config;
 
 import com.mtons.mblog.base.lang.Consts;
-import com.mtons.mblog.base.utils.Printer;
 import com.mtons.mblog.modules.entity.Options;
 import com.mtons.mblog.modules.service.ChannelService;
+import com.mtons.mblog.modules.service.MailService;
 import com.mtons.mblog.modules.service.OptionsService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
@@ -24,6 +25,7 @@ import java.util.Map;
  * 加载配置信息到系统
  * @since 3.0
  */
+@Slf4j
 @Order(2)
 @Component
 public class ContextStartup implements ApplicationRunner, ServletContextAware {
@@ -32,17 +34,18 @@ public class ContextStartup implements ApplicationRunner, ServletContextAware {
     @Autowired
     private ChannelService channelService;
     @Autowired
+    private MailService mailService;
+    @Autowired
     private SiteOptions siteOptions;
 
     private ServletContext servletContext;
 
     @Override
     public void run(ApplicationArguments applicationArguments) throws Exception {
-        Printer.info("initialization ...");
+        log.info("initialization ...");
         reloadOptions(true);
-        resetSiteConfig();
         resetChannels();
-        Printer.info("OK, completed");
+        log.info("OK, completed");
     }
 
     @Override
@@ -53,17 +56,19 @@ public class ContextStartup implements ApplicationRunner, ServletContextAware {
     public void reloadOptions(boolean startup) {
         List<Options> options = optionsService.findAll();
 
+        log.info("find options ({})...", options.size());
+
         if (startup && CollectionUtils.isEmpty(options)) {
             try {
-                Printer.info("init options...");
-                Resource resource = new ClassPathResource("/config/db/db_mblog.sql");
+                log.info("init options...");
+                Resource resource = new ClassPathResource("/scripts/schema.sql");
                 optionsService.initSettings(resource);
                 options = optionsService.findAll();
             } catch (Exception e) {
-                Printer.error("------------------------------------------------------------");
-                Printer.error("-          ERROR: The database is not initialized          -");
-                Printer.error("------------------------------------------------------------");
-                Printer.error(e.getMessage(), e);
+                log.error("------------------------------------------------------------");
+                log.error("-          ERROR: The database is not initialized          -");
+                log.error("------------------------------------------------------------");
+                log.error(e.getMessage(), e);
                 System.exit(1);
             }
         }
@@ -75,13 +80,14 @@ public class ContextStartup implements ApplicationRunner, ServletContextAware {
             }
         });
         servletContext.setAttribute("options", map);
+        servletContext.setAttribute("site", siteOptions);
+        mailService.config();
+
+        System.setProperty("site.location", siteOptions.getLocation());
     }
 
     public void resetChannels() {
         servletContext.setAttribute("channels", channelService.findAll(Consts.STATUS_NORMAL));
     }
 
-    public void resetSiteConfig() {
-        servletContext.setAttribute("site", siteOptions);
-    }
 }

@@ -13,9 +13,13 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.safety.Whitelist;
+import org.jsoup.select.Elements;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Created by langhsu on 2017/9/2.
+ * Created by langhsu
  */
 public class PreviewTextUtils {
     /**
@@ -52,20 +56,29 @@ public class PreviewTextUtils {
         return Jsoup.clean(html, Whitelist.simpleText());
     }
 
+    public static String removeHideHtml(String html) {
+        if (html == null)
+            return null;
+        return Jsoup.clean(html, (new Whitelist()).addTags("hide"));
+    }
+
     /**
      * 获取文章中的img url
      * @param html 代码
      * @return string
      */
-    public static String getImgSrc(String html) {
+    public static List<String> extractImage(String html) {
+        List<String> urls = new ArrayList<>();
         if (html == null)
-            return null;
+            return urls;
         Document doc = Jsoup.parseBodyFragment(html);
-        Element image = doc.select("img").first();
-        return image == null ? null : image.attr("src");
+        Elements images = doc.select("img");
+        if (null != images) {
+            for(Element el : images) {
+                urls.add(el.attr("src"));
+            }
+        }
+        return urls;
     }
 
-    public static void main(String[] args) {
-        System.out.println(PreviewTextUtils.getText("<script>alert</script>test  ", 5));
-    }
 }

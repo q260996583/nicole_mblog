@@ -18,6 +18,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -29,14 +30,12 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
 
     User findByEmail(String email);
 
-    List<User> findAllByIdIn(Set<Long> ids);
-
     @Modifying
     @Query("update User set posts = posts + :increment where id = :id")
     int updatePosts(@Param("id") long id, @Param("increment") int increment);
 
     @Modifying
-    @Query("update User set comments = comments + :increment where id = :id")
-    int updateComments(@Param("id") long id, @Param("increment") int increment);
+    @Query("update User set comments = comments + :increment where id in (:ids)")
+    int updateComments(@Param("ids") Collection<Long> ids, @Param("increment") int increment);
 
 }

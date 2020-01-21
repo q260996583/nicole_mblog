@@ -1,13 +1,10 @@
 package com.mtons.mblog;
 
-import lombok.extern.log4j.Log4j;
-import lombok.extern.log4j.Log4j2;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.ApplicationContext;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 /**
  * SprintBootApplication
@@ -15,13 +12,8 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @Slf4j
 @SpringBootApplication
 @EnableCaching
-@EnableTransactionManagement
-@Log4j2
 public class BootApplication {
 
-    /**
-     * @param args
-     */
     public static void main(String[] args) {
         ApplicationContext context = SpringApplication.run(BootApplication.class, args);
         String serverPort = context.getEnvironment().getProperty("server.port");

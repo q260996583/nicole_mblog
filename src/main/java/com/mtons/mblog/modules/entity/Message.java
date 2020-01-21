@@ -1,8 +1,5 @@
 package com.mtons.mblog.modules.entity;
 
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-
 import javax.persistence.*;
 import java.util.Date;
 
@@ -12,27 +9,41 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "mto_message")
-@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Message {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "own_id")
-    private long ownId;
+    /**
+     * 所属用户Id
+     */
+    @Column(name = "user_id")
+    private long userId;
 
+    /**
+     * 消息来源用户Id
+     */
     @Column(name = "from_id")
     private long fromId;
 
+    /**
+     * 事件类型 {@link com.mtons.mblog.base.lang.Consts#MESSAGE_EVENT_COMMENT}
+     */
     private int event; // 事件
 
+    /**
+     * 关联文章ID
+     */
     @Column(name = "post_id")
-    private long postId; // 关联文章ID
+    private long postId;
 
     @Temporal(TemporalType.TIMESTAMP)
     private Date created;
 
-    private int status; // 阅读状态
+    /**
+     * 阅读状态 {@link com.mtons.mblog.base.lang.Consts#UNREAD}
+     */
+    private int status;
 
     public long getId() {
         return id;
@@ -42,12 +53,12 @@ public class Message {
         this.id = id;
     }
 
-    public long getOwnId() {
-        return ownId;
+    public long getUserId() {
+        return userId;
     }
 
-    public void setOwnId(long ownId) {
-        this.ownId = ownId;
+    public void setUserId(long userId) {
+        this.userId = userId;
     }
 
     public long getFromId() {

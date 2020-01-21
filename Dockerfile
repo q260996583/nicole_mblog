@@ -1,10 +1,15 @@
 FROM maven:3.5.4-jdk-8
-MAINTAINER langhsu
+MAINTAINER mtons
 
-ENV TZ=Asia/Shanghai mysql_user="root" mysql_password="root"
-RUN mkdir /app && ln -sf /usr/share/zoneinfo/{TZ} /etc/localtime && echo "{TZ}" > /etc/timezone
+WORKDIR /app/mblog
+ADD . /build
 
-WORKDIR /app
+ENV TZ=Asia/Shanghai
+RUN ln -sf /usr/share/zoneinfo/{TZ} /etc/localtime && echo "{TZ}" > /etc/timezone
 
-ADD mblog-latest.jar mblog-latest.jar
-ENTRYPOINT ["java",  "-jar", "/app/mblog-latest.jar", "--spring.datasource.username=${mysql_user}","--spring.datasource.password=${mysql_password}"]
+RUN cd /build && mvn package -Dmaven.test.skip=true -Ph2 \
+    && cp -f target/mblog-latest.jar /app/mblog && rm -rf /build/*
+
+EXPOSE 8080
+
+ENTRYPOINT ["java","-jar","/app/mblog/mblog-latest.jar"]

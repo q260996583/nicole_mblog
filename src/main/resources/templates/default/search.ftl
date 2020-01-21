@@ -1,4 +1,4 @@
-<#include "/default/utils/ui.ftl"/>
+<#include "/default/inc/layout.ftl"/>
 
 <@layout "搜索:" + kw>
 
@@ -8,7 +8,7 @@
             <div class="panel-heading">
                 <ul class="list-inline topic-filter">
                     <li class="popover-with-html">
-                        搜索: ${kw} 共 ${page.totalElements} 个结果.
+                        搜索: ${kw} 共 ${results.totalElements} 个结果.
                     </li>
                 </ul>
                 <div class="clearfix"></div>
@@ -31,15 +31,12 @@
                                 </div>
                             </a>
                             <div class="avatar pull-left">
-                                <a href="${base}/users/${row.author.id}">
-                                    <img class="media-object img-thumbnail avatar avatar-middle"
-                                         src="<@resource src=row.author.avatar + '?t=' + .now?time/>">
-                                </a>
+                                <@utils.showAva row.author "media-object img-thumbnail avatar avatar-middle"/>
                             </div>
                             <div class="infos">
                                 <div class="media-heading">
                                 <#--<span class="hidden-xs label label-warning">${row.channel.name}</span>-->
-                                    <a href="${base}/view/${row.id}">${row.title}</a>
+                                    <a href="${base}/post/${row.id}">${row.title}</a>
                                 </div>
                             </div>
                         </li>
@@ -56,7 +53,7 @@
             </div>
 
             <div class="panel-footer text-right remove-padding-horizontal pager-footer">
-                <@pager request.requestURI, results, 5/>
+                <@utils.pager request.requestURI!"" + "?kw=${kw}", results, 5/>
             </div>
         </div>
     </div>

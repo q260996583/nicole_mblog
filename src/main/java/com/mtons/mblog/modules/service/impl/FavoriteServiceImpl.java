@@ -3,10 +3,11 @@ package com.mtons.mblog.modules.service.impl;
 import com.mtons.mblog.modules.data.FavoriteVO;
 import com.mtons.mblog.modules.data.PostVO;
 import com.mtons.mblog.modules.repository.FavoriteRepository;
-import com.mtons.mblog.modules.utils.BeanMapUtils;
+import com.mtons.mblog.base.utils.BeanMapUtils;
 import com.mtons.mblog.modules.entity.Favorite;
 import com.mtons.mblog.modules.service.FavoriteService;
 import com.mtons.mblog.modules.service.PostService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -20,7 +21,9 @@ import java.util.*;
 /**
  * @author langhsu on 2015/8/31.
  */
+@Slf4j
 @Service
+@Transactional(readOnly = true)
 public class FavoriteServiceImpl implements FavoriteService {
     @Autowired
     private FavoriteRepository favoriteRepository;
@@ -28,33 +31,8 @@ public class FavoriteServiceImpl implements FavoriteService {
     private PostService postService;
 
     @Override
-    @Transactional
-    public void add(long userId, long postId) {
-        Favorite po = favoriteRepository.findByOwnIdAndPostId(userId, postId);
-
-        Assert.isNull(po, "您已经收藏过此文章");
-
-        // 如果没有喜欢过, 则添加记录
-        po = new Favorite();
-        po.setOwnId(userId);
-        po.setPostId(postId);
-        po.setCreated(new Date());
-
-        favoriteRepository.save(po);
-    }
-
-    @Override
-    @Transactional
-    public void delete(long userId, long postId) {
-        Favorite po = favoriteRepository.findByOwnIdAndPostId(userId, postId);
-        Assert.notNull(po, "还没有喜欢过此文章");
-        favoriteRepository.delete(po);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public Page<FavoriteVO> pagingByOwnId(Pageable pageable, long ownId) {
-        Page<Favorite> page = favoriteRepository.findAllByOwnIdOrderByCreatedDesc(pageable, ownId);
+    public Page<FavoriteVO> pagingByUserId(Pageable pageable, long userId) {
+        Page<Favorite> page = favoriteRepository.findAllByUserId(pageable, userId);
 
         List<FavoriteVO> rets = new ArrayList<>();
         Set<Long> postIds = new HashSet<>();
@@ -73,4 +51,36 @@ public class FavoriteServiceImpl implements FavoriteService {
         }
         return new PageImpl<>(rets, pageable, page.getTotalElements());
     }
+
+    @Override
+    @Transactional
+    public void add(long userId, long postId) {
+        Favorite po = favoriteRepository.findByUserIdAndPostId(userId, postId);
+
+        Assert.isNull(po, "您已经收藏过此文章");
+
+        // 如果没有喜欢过, 则添加记录
+        po = new Favorite();
+        po.setUserId(userId);
+        po.setPostId(postId);
+        po.setCreated(new Date());
+
+        favoriteRepository.save(po);
+    }
+
+    @Override
+    @Transactional
+    public void delete(long userId, long postId) {
+        Favorite po = favoriteRepository.findByUserIdAndPostId(userId, postId);
+        Assert.notNull(po, "还没有喜欢过此文章");
+        favoriteRepository.delete(po);
+    }
+
+    @Override
+    @Transactional
+    public void deleteByPostId(long postId) {
+        int rows = favoriteRepository.deleteByPostId(postId);
+        log.info("favoriteRepository delete {}", rows);
+    }
+
 }

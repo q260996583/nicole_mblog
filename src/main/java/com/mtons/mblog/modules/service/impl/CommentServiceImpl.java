@@ -15,10 +15,11 @@ import com.mtons.mblog.modules.data.UserVO;
 import com.mtons.mblog.modules.entity.Comment;
 import com.mtons.mblog.modules.repository.CommentRepository;
 import com.mtons.mblog.modules.service.CommentService;
+import com.mtons.mblog.modules.service.PostService;
 import com.mtons.mblog.modules.service.UserEventService;
 import com.mtons.mblog.modules.service.UserService;
-import com.mtons.mblog.modules.utils.BeanMapUtils;
-import com.mtons.mblog.modules.service.PostService;
+import com.mtons.mblog.base.utils.BeanMapUtils;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
@@ -62,7 +63,7 @@ public class CommentServiceImpl implements CommentService {
 
 	@Override
 	public Page<CommentVO> pagingByAuthorId(Pageable pageable, long authorId) {
-		Page<Comment> page = commentRepository.findAllByAuthorIdOrderByCreatedDesc(pageable, authorId);
+		Page<Comment> page = commentRepository.findAllByAuthorId(pageable, authorId);
 
 		List<CommentVO> rets = new ArrayList<>();
 		Set<Long> parentIds = new HashSet<>();
@@ -76,7 +77,7 @@ public class CommentServiceImpl implements CommentService {
 				parentIds.add(c.getPid());
 			}
 			uids.add(c.getAuthorId());
-			postIds.add(c.getToId());
+			postIds.add(c.getPostId());
 
 			rets.add(c);
 		});
@@ -91,8 +92,8 @@ public class CommentServiceImpl implements CommentService {
 	}
 
 	@Override
-	public Page<CommentVO> pagingByPostId(Pageable pageable, long toId) {
-		Page<Comment> page = commentRepository.findAllByToIdOrderByCreatedDesc(pageable, toId);
+	public Page<CommentVO> pagingByPostId(Pageable pageable, long postId) {
+		Page<Comment> page = commentRepository.findAllByPostId(pageable, postId);
 		
 		List<CommentVO> rets = new ArrayList<>();
 		Set<Long> parentIds = new HashSet<>();
@@ -118,62 +119,8 @@ public class CommentServiceImpl implements CommentService {
 	}
 
 	@Override
-	public Map<Long, CommentVO> findByIds(Set<Long> ids) {
-		List<Comment> list = commentRepository.findByIdIn(ids);
-		Map<Long, CommentVO> ret = new HashMap<>();
-		Set<Long> uids = new HashSet<>();
-
-		list.forEach(po -> {
-			uids.add(po.getAuthorId());
-			ret.put(po.getId(), BeanMapUtils.copy(po));
-		});
-
-		buildUsers(ret.values(), uids);
-		return ret;
-	}
-
-	@Override
-	@Transactional
-	public long post(CommentVO comment) {
-		Comment po = new Comment();
-		
-		po.setAuthorId(comment.getAuthorId());
-		po.setToId(comment.getToId());
-		po.setContent(comment.getContent());
-		po.setCreated(new Date());
-		po.setPid(comment.getPid());
-		commentRepository.save(po);
-
-		userEventService.identityComment(comment.getAuthorId(), po.getId(), true);
-		return po.getId();
-	}
-
-	@Override
-	@Transactional
-	public void delete(List<Long> ids) {
-		commentRepository.deleteAllByIdIn(ids);
-	}
-
-	@Override
-	@Transactional
-	public void delete(long id, long authorId) {
-		Optional<Comment> optional = commentRepository.findById(id);
-		if (optional.isPresent()) {
-			// 判断文章是否属于当前登录用户
-			Assert.isTrue(optional.get().getAuthorId() == authorId, "认证失败");
-			commentRepository.deleteById(id);
-		}
-	}
-
-	@Override
-	@Transactional
-	public List<Comment> findAllByAuthorIdAndToId(long authorId, long toId) {
-		return commentRepository.findAllByAuthorIdAndToIdOrderByCreatedDesc(authorId, toId);
-	}
-
-	@Override
-	public List<CommentVO> latests(int maxResults) {
-		Pageable pageable = new PageRequest(0, maxResults, new Sort(Sort.Direction.DESC, "id"));
+	public List<CommentVO> findLatestComments(int maxResults) {
+		Pageable pageable = PageRequest.of(0, maxResults, new Sort(Sort.Direction.DESC, "id"));
 		Page<Comment> page = commentRepository.findAll(pageable);
 		List<CommentVO> rets = new ArrayList<>();
 
@@ -189,8 +136,85 @@ public class CommentServiceImpl implements CommentService {
 	}
 
 	@Override
+	public Map<Long, CommentVO> findByIds(Set<Long> ids) {
+		List<Comment> list = commentRepository.findAllById(ids);
+		Map<Long, CommentVO> ret = new HashMap<>();
+		Set<Long> uids = new HashSet<>();
+
+		list.forEach(po -> {
+			uids.add(po.getAuthorId());
+			ret.put(po.getId(), BeanMapUtils.copy(po));
+		});
+
+		buildUsers(ret.values(), uids);
+		return ret;
+	}
+
+	@Override
+	public Comment findById(long id) {
+		return commentRepository.findById(id).orElse(null);
+	}
+
+	@Override
+	@Transactional
+	public long post(CommentVO comment) {
+		Comment po = new Comment();
+		
+		po.setAuthorId(comment.getAuthorId());
+		po.setPostId(comment.getPostId());
+		po.setContent(comment.getContent());
+		po.setCreated(new Date());
+		po.setPid(comment.getPid());
+		commentRepository.save(po);
+
+		userEventService.identityComment(comment.getAuthorId(), true);
+		return po.getId();
+	}
+
+	@Override
+	@Transactional
+	public void delete(List<Long> ids) {
+		List<Comment> list = commentRepository.removeByIdIn(ids);
+		if (CollectionUtils.isNotEmpty(list)) {
+			list.forEach(po -> {
+				userEventService.identityComment(po.getAuthorId(), false);
+			});
+		}
+	}
+
+	@Override
+	@Transactional
+	public void delete(long id, long authorId) {
+		Optional<Comment> optional = commentRepository.findById(id);
+		if (optional.isPresent()) {
+			Comment po = optional.get();
+			// 判断文章是否属于当前登录用户
+			Assert.isTrue(po.getAuthorId() == authorId, "认证失败");
+			commentRepository.deleteById(id);
+
+			userEventService.identityComment(authorId, false);
+		}
+	}
+
+	@Override
+	@Transactional
+	public void deleteByPostId(long postId) {
+		List<Comment> list = commentRepository.removeByPostId(postId);
+		if (CollectionUtils.isNotEmpty(list)) {
+			Set<Long> userIds = new HashSet<>();
+			list.forEach(n -> userIds.add(n.getAuthorId()));
+			userEventService.identityComment(userIds, false);
+		}
+	}
+
+	@Override
 	public long count() {
 		return commentRepository.count();
+	}
+
+	@Override
+	public long countByAuthorIdAndPostId(long authorId, long toId) {
+		return commentRepository.countByAuthorIdAndPostId(authorId, toId);
 	}
 
 	private void buildUsers(Collection<CommentVO> posts, Set<Long> uids) {
@@ -201,8 +225,7 @@ public class CommentServiceImpl implements CommentService {
 
 	private void buildPosts(Collection<CommentVO> comments, Set<Long> postIds) {
 		Map<Long, PostVO> postMap = postService.findMapByIds(postIds);
-
-		comments.forEach(p -> p.setPost(postMap.get(p.getToId())));
+		comments.forEach(p -> p.setPost(postMap.get(p.getPostId())));
 	}
 
 	private void buildParent(Collection<CommentVO> comments, Set<Long> parentIds) {

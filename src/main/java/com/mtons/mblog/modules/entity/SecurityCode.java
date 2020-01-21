@@ -9,9 +9,6 @@
 */
 package com.mtons.mblog.modules.entity;
 
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-
 import javax.persistence.*;
 import java.util.Date;
 
@@ -21,34 +18,54 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "mto_security_code")
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class SecurityCode {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id", unique = true)
-    private long userId; // 用户ID
+    /**
+     * 用户ID
+     */
+    @Column(name = "key_", unique = true, nullable = false, length = 64)
+    private String key;
 
-    @Column(length = 60, nullable = false)
-    private String code; // 验证码
+    /**
+     * 验证码
+     */
+    @Column(length = 16, nullable = false)
+    private String code;
 
-    @Column(length = 96)
-    private String target; // 目标：邮箱
+    /**
+     * 目标：邮箱
+     */
+    @Column(length = 64)
+    private String target;
 
+    /**
+     * 验证类型：注册验证、找回密码验证
+     */
     @Column
-    private int type; // 验证类型：注册验证、找回密码验证
+    private int type;
 
+    /**
+     * 过期时间
+     */
     @Column(name = "expired", nullable = false)
     @Temporal(value = TemporalType.TIMESTAMP)
-    private Date expired; // 过期时间
+    private Date expired;
 
+    /**
+     * 创建时间
+     */
     @Column(name = "created", nullable = false)
     @Temporal(value = TemporalType.TIMESTAMP)
-    private Date created; // 创建时间
+    private Date created;
 
+    /**
+     * 状态：正常、关闭
+     */
     @Column
-    private int status; // 状态：正常、关闭
+    private int status;
 
     public Long getId() {
         return id;
@@ -58,12 +75,12 @@ public class SecurityCode {
         this.id = id;
     }
 
-    public long getUserId() {
-        return userId;
+    public String getKey() {
+        return key;
     }
 
-    public void setUserId(long userId) {
-        this.userId = userId;
+    public void setKey(String key) {
+        this.key = key;
     }
 
     public String getCode() {

@@ -4,6 +4,7 @@
 [![JDK](https://img.shields.io/badge/jdk-1.8-green.svg?style=flat-square)](#)
 [![Release](https://img.shields.io/github/release/langhsu/mblog.svg?style=flat-square)](https://github.com/langhsu/mblog)
 [![license](https://img.shields.io/badge/license-GPL--3.0-green.svg)](https://github.com/langhsu/mblog/blob/master/LICENSE)
+[![Docker](https://img.shields.io/docker/automated/langhsu/mblog.svg?style=flat-square)](https://hub.docker.com/r/langhsu/mblog)
 [![QQ群](https://img.shields.io/badge/chat-Mtons-green.svg)](https://jq.qq.com/?_wv=1027&k=521CRdF)
 
 ### 技术选型：
@@ -32,9 +33,18 @@
  IDE得装lombok插件
 ```
 
-- 更多文档及教程见 [http://mtons.com/dock/mblog](http://mtons.com/dock/mblog)
+- 文档: [说明文档](https://langhsu.github.io/mblog/#/)
+- 官网: [官网地址](http://www.mtons.com)
 - QQ交流群：378433412
-
+    
+### 版本(3.5)更新内容：
+    1. 文件存储目录可配置, 见 site.location, 默认为 user.dir
+    2. 支持在${site.location}/storage/templates 目录下扩展自己的主题(${site.location}具体位置见启动日志)
+    3. 后台未配置对应第三方登录信息时, 前端不显示对应的按钮
+    4. 模板优化
+    5. 后台配置主题改为自动从目录中加载
+    6. 新增markdown编辑器, 可在后台选择tinymce/markdown
+    
 ### 版本(3.0)更新内容：
     1. 新增开关控制(注册开关, 发文开关, 评论开发)
     2. 后台重写, 替换了所有后台页面功能更完善
@@ -48,16 +58,12 @@
     10. 替换表单验证插件, 评论表情改为颜文字
     11. 我的主页和Ta人主页合并
     12. 优化了图片裁剪功能
-    
-[官网地址](http://www.mtons.com)
-    
+    13. 支持Docker, 详情见 https://hub.docker.com/r/langhsu/mblog
+    14. 邮件服务后台可配
+    15. 新增标签页
+    16. 新增注册邮箱验证开关(需要手动删除之前的 mto_security_code 表)
+      
 ### 图片演示 
-![首页](https://images.gitee.com/uploads/images/2019/0125/142627_fcd67bfd_116277.jpeg "前台首页.jpg")
-![文章](https://images.gitee.com/uploads/images/2019/0125/142647_328aa3d7_116277.jpeg "文章阅读.jpg")
-![后台](https://images.gitee.com/uploads/images/2019/0125/142704_cca6a479_116277.jpeg "后台首页.jpg")
-![后台文章管理](https://images.gitee.com/uploads/images/2019/0125/142725_3754efbf_116277.jpeg "后台文章编辑.jpg")
 
-图片来自@weian豆丁
-
-### 博客示例：
-[https://chengzia.com](https://chengzia.com)
+ ![输入图片说明](https://images.gitee.com/uploads/images/2019/0414/175116_449ed877_1758849.jpeg "1.jpg")
+ ![输入图片说明](https://images.gitee.com/uploads/images/2019/0414/175353_6185e4f1_1758849.jpeg "2.jpg")

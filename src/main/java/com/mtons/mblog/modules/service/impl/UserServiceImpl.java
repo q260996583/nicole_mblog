@@ -11,23 +11,19 @@ package com.mtons.mblog.modules.service.impl;
 
 import com.mtons.mblog.base.lang.EntityStatus;
 import com.mtons.mblog.base.lang.MtonsException;
+import com.mtons.mblog.base.utils.MD5;
 import com.mtons.mblog.modules.data.AccountProfile;
+import com.mtons.mblog.modules.data.BadgesCount;
 import com.mtons.mblog.modules.data.UserVO;
-import com.mtons.mblog.modules.entity.Role;
 import com.mtons.mblog.modules.entity.User;
 import com.mtons.mblog.modules.repository.RoleRepository;
 import com.mtons.mblog.modules.repository.UserRepository;
-import com.mtons.mblog.modules.utils.BeanMapUtils;
-import com.mtons.mblog.base.utils.MD5;
-import com.mtons.mblog.modules.data.BadgesCount;
 import com.mtons.mblog.modules.service.MessageService;
 import com.mtons.mblog.modules.service.UserService;
+import com.mtons.mblog.base.utils.BeanMapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -40,7 +36,6 @@ import java.util.*;
 
 @Service
 @Transactional(readOnly = true)
-@CacheConfig(cacheNames = "usersCaches")
 public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepository userRepository;
@@ -74,7 +69,7 @@ public class UserServiceImpl implements UserService {
         if (ids == null || ids.isEmpty()) {
             return Collections.emptyMap();
         }
-        List<User> list = userRepository.findAllByIdIn(ids);
+        List<User> list = userRepository.findAllById(ids);
         Map<Long, UserVO> ret = new HashMap<>();
 
         list.forEach(po -> ret.put(po.getId(), BeanMapUtils.copy(po)));
@@ -85,9 +80,10 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public AccountProfile login(String username, String password) {
         User po = userRepository.findByUsername(username);
-        AccountProfile u = null;
 
-        Assert.notNull(po, "账户不存在");
+        if (null == po) {
+            return null;
+        }
 
 //		Assert.state(po.getStatus() != Const.STATUS_CLOSED, "您的账户已被封禁");
 
@@ -95,7 +91,7 @@ public class UserServiceImpl implements UserService {
 
         po.setLastLogin(Calendar.getInstance().getTime());
         userRepository.save(po);
-        u = BeanMapUtils.copyPassport(po);
+        AccountProfile u = BeanMapUtils.copyPassport(po);
 
         BadgesCount badgesCount = new BadgesCount();
         badgesCount.setMessages(messageService.unread4Me(u.getId()));
@@ -106,16 +102,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public AccountProfile findProfile(String username) {
-        User po = userRepository.findByUsername(username);
-        AccountProfile u = null;
+    public AccountProfile findProfile(Long id) {
+        User po = userRepository.findById(id).orElse(null);
 
         Assert.notNull(po, "账户不存在");
 
 //		Assert.state(po.getStatus() != Const.STATUS_CLOSED, "您的账户已被封禁");
         po.setLastLogin(Calendar.getInstance().getTime());
 
-        u = BeanMapUtils.copyPassport(po);
+        AccountProfile u = BeanMapUtils.copyPassport(po);
 
         BadgesCount badgesCount = new BadgesCount();
         badgesCount.setMessages(messageService.unread4Me(u.getId()));
@@ -137,6 +132,11 @@ public class UserServiceImpl implements UserService {
 
         Assert.isNull(check, "用户名已经存在!");
 
+        if (StringUtils.isNotBlank(user.getEmail())) {
+            User emailCheck = userRepository.findByEmail(user.getEmail());
+            Assert.isNull(emailCheck, "邮箱已经存在!");
+        }
+
         User po = new User();
 
         BeanUtils.copyProperties(user, po);
@@ -157,7 +157,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    @CacheEvict(key = "#user.getId()")
     public AccountProfile update(UserVO user) {
         User po = userRepository.findById(user.getId()).get();
         po.setName(user.getName());
@@ -168,7 +167,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    @CacheEvict(key = "#id")
     public AccountProfile updateEmail(long id, String email) {
         User po = userRepository.findById(id).get();
 
@@ -187,7 +185,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Cacheable(key = "#userId")
     public UserVO get(long userId) {
         Optional<User> optional = userRepository.findById(userId);
         if (optional.isPresent()) {
@@ -208,7 +205,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    @CacheEvict(key = "#id")
     public AccountProfile updateAvatar(long id, String path) {
         User po = userRepository.findById(id).get();
         po.setAvatar(path);

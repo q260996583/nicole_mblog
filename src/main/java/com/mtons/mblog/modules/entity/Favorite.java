@@ -8,7 +8,9 @@ import java.util.Date;
  * @author langhsu on 2015/8/31.
  */
 @Entity
-@Table(name = "mto_favorite")
+@Table(name = "mto_favorite", indexes = {
+        @Index(name = "IK_USER_ID", columnList = "user_id")
+})
 public class Favorite {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,8 +19,8 @@ public class Favorite {
     /**
      * 所属用户
      */
-    @Column(name = "own_id")
-    private long ownId;
+    @Column(name = "user_id")
+    private long userId;
 
     /**
      * 内容ID
@@ -37,12 +39,12 @@ public class Favorite {
         this.id = id;
     }
 
-    public long getOwnId() {
-        return ownId;
+    public long getUserId() {
+        return userId;
     }
 
-    public void setOwnId(long ownId) {
-        this.ownId = ownId;
+    public void setUserId(long userId) {
+        this.userId = userId;
     }
 
     public long getPostId() {

@@ -128,10 +128,10 @@
                         </button>
                     </div>
                 </div>
-                <div class="box-body chat" id="chat-box" style="overflow: hidden; width: auto; height: 250px;">
+                <div class="box-body chat" id="chat-box">
                     <!-- chat item -->
                     <div class="item">
-                        <p class="message">没有最新内容</p>
+                        <p>没有最新内容</p>
                     </div>
                     <!-- /.item -->
                 </div>

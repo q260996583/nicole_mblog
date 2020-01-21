@@ -53,13 +53,13 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public List<Role> list() {
-        List<Role> list = roleRepository.findAllByStatusOrderByIdDesc(Role.STATUS_NORMAL);
+        List<Role> list = roleRepository.findAllByStatus(Role.STATUS_NORMAL);
         return list;
     }
 
     @Override
     public Map<Long, Role> findByIds(Set<Long> ids) {
-        List<Role> list = roleRepository.findAllByIdIsIn(ids);
+        List<Role> list = roleRepository.findAllById(ids);
         Map<Long, Role> ret = new LinkedHashMap<>();
         list.forEach(po -> {
             Role vo = toVO(po);

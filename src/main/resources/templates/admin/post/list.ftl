@@ -21,7 +21,15 @@
                 </div>
                 <div class="box-body">
                     <form id="qForm" class="form-inline search-row">
-                        <input type="hidden" name="pageNo" value="${page.number}"/>
+                        <input type="hidden" name="pageNo" value="${page.number + 1}"/>
+                        <div class="form-group">
+                            <select class="form-control" name="channelId" data-select="${channelId}">
+                                <option value="0">查询所有栏目</option>
+                                <#list channels as row>
+                                    <option value="${row.id}">${row.name}</option>
+                                </#list>
+                            </select>
+                        </div>
                         <div class="form-group">
                             <input type="text" name="title" class="form-control" value="${title}" placeholder="请输入标题关键字">
                         </div>
@@ -38,6 +46,7 @@
                                 <th width="100">发表日期</th>
                                 <th width="60">访问数</th>
                                 <th width="80">状态</th>
+                                <th width="80">发布</th>
                                 <th width="180">操作</th>
                             </tr>
                             </thead>
@@ -51,7 +60,7 @@
                                         <img src="<@resource src=row.thumbnail/>" style="width: 80px;">
                                     </td>
                                     <td>
-                                        <a href="${base}/view/${row.id}" target="_blank">${row.title}</a>
+                                        <a href="${base}/post/${row.id}" target="_blank">${row.title}</a>
                                     </td>
                                     <td>${row.author.username}</td>
                                     <td>${row.created?string('yyyy-MM-dd')}</td>
@@ -62,6 +71,14 @@
                                         </#if>
                                         <#if (row.weight > 0)>
                                             <span class="label label-warning">置顶</span>
+                                        </#if>
+                                    </td>
+                                    <td>
+                                        <#if (row.status = 0)>
+                                            <span class="label label-default">已发布</span>
+                                        </#if>
+                                        <#if (row.status = 1)>
+                                            <span class="label label-warning">草稿</span>
                                         </#if>
                                     </td>
                                     <td>
@@ -162,7 +179,7 @@ $(function() {
     // 推荐/加精
     $('#dataGrid a[rel="weight"]').bind('click', function(){
         var that = $(this);
-        layer.confirm('确定推荐吗?推荐后将显示在Banner位上', {
+        layer.confirm('确定置顶该项吗', {
             btn: ['确定','取消'], //按钮
             shade: false //不显示遮罩
         }, function(){

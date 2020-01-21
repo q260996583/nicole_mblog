@@ -9,8 +9,8 @@
 */
 package com.mtons.mblog.web.controller.admin;
 
-import com.mtons.mblog.base.lang.Result;
 import com.mtons.mblog.base.lang.Consts;
+import com.mtons.mblog.base.lang.Result;
 import com.mtons.mblog.modules.data.AccountProfile;
 import com.mtons.mblog.modules.data.PostVO;
 import com.mtons.mblog.modules.service.ChannelService;
@@ -20,6 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.ServletRequestUtils;
@@ -27,7 +28,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -47,14 +47,15 @@ public class PostController extends BaseController {
 	@RequestMapping("/list")
 	public String list(String title, ModelMap model, HttpServletRequest request) {
 		long id = ServletRequestUtils.getLongParameter(request, "id", Consts.ZERO);
-		int group = ServletRequestUtils.getIntParameter(request, "group", Consts.ZERO);
+		int channelId = ServletRequestUtils.getIntParameter(request, "channelId", Consts.ZERO);
 
-		Pageable pageable = wrapPageable();
-		Page<PostVO> page = postService.paging4Admin(pageable, id, title, group);
+		Pageable pageable = wrapPageable(Sort.by(Sort.Direction.DESC, "weight", "created"));
+		Page<PostVO> page = postService.paging4Admin(pageable, channelId, title);
 		model.put("page", page);
 		model.put("title", title);
 		model.put("id", id);
-		model.put("group", group);
+		model.put("channelId", channelId);
+		model.put("channels", channelService.findAll(Consts.IGNORE));
 		return "/admin/post/list";
 	}
 	
@@ -66,12 +67,17 @@ public class PostController extends BaseController {
 	 */
 	@RequestMapping(value = "/view", method = RequestMethod.GET)
 	public String toUpdate(Long id, ModelMap model) {
+		String editor = siteOptions.getValue("editor");
 		if (null != id && id > 0) {
-			PostVO ret = postService.get(id);
-			model.put("view", ret);
+			PostVO view = postService.get(id);
+			if (StringUtils.isNoneBlank(view.getEditor())) {
+				editor = view.getEditor();
+			}
+			model.put("view", view);
 		}
-		model.put("groups", channelService.findAll(Consts.IGNORE));
-		return "/admin/post/update";
+		model.put("editor", editor);
+		model.put("channels", channelService.findAll(Consts.IGNORE));
+		return "/admin/post/view";
 	}
 	
 	/**
@@ -80,21 +86,8 @@ public class PostController extends BaseController {
 	 * @return
 	 */
 	@RequestMapping(value = "/update", method = RequestMethod.POST)
-	public String subUpdate(PostVO post, @RequestParam(value = "file", required=false) MultipartFile file) throws Exception {
+	public String subUpdate(PostVO post) {
 		if (post != null) {
-			/**
-			 * 保存预览图片
-			 */
-			if (file != null && !file.isEmpty()) {
-				String thumbnail = storageFactory.get().storeScale(file, Consts.thumbnailPath, 360, 200);
-
-				if (StringUtils.isNotBlank(post.getThumbnail())) {
-					storageFactory.get().deleteFile(post.getThumbnail());
-				}
-
-				post.setThumbnail(thumbnail);
-			}
-
 			if (post.getId() > 0) {
 				postService.update(post);
 			} else {

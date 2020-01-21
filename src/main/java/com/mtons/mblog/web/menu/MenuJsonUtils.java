@@ -16,7 +16,7 @@ import java.util.List;
  * @create - 2018/5/18
  */
 public class MenuJsonUtils {
-    private static String config = "/config/menu.json";
+    private static String config = "/scripts/menu.json";
     private static List<Menu> menus;
 
     /**
@@ -30,8 +30,15 @@ public class MenuJsonUtils {
 
         StringBuilder json = new StringBuilder();
         String tmp;
-        while ((tmp = reader.readLine()) != null) {
-            json.append(tmp);
+        try {
+            while ((tmp = reader.readLine()) != null) {
+                json.append(tmp);
+            }
+        } catch (IOException e) {
+            throw e;
+        } finally {
+            reader.close();
+            inStream.close();
         }
 
         List<Menu> menus = JSONArray.parseArray(json.toString(), Menu.class);
